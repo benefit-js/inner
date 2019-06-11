@@ -8,60 +8,71 @@
       </div>
     </div>
     <div class="main">
-      <form action="/">
-        <div class="field">
-          <label for="card-number">Debit Card Number</label>
-          <input
-            id="card-number"
-            type="tel"
-            name="number"
-            pattern="[0-9]{16}"
-            placeholder="•••• •••• •••• ••••"
-          >
-        </div>
-        <div class="half-field">
-          <label>Expiry Date</label>
-          <input
-            id="card-expiry"
-            type="tel"
-            name="number"
-            pattern="[0-9]{1-2}/[0-9]{2}"
-            placeholder="MM/YY"
-          >
-        </div>
-        <div class="half-field">
-          <label for="card-pin">ATM PIN</label>
-          <input id="card-pin" type="tel" name="number" pattern="[0-9]{4}" placeholder="••••">
-        </div>
-        <button class="btn btn-primary">Pay BHD12.345</button>
-      </form>
-
-      <div class="benefit">
-        This payment will be processed by
-        The BENEFIT Company B.S.C
-        <img
-          src="~/static/images/benefit.svg"
-          alt="BENEFIT"
+      <div class="field">
+        <label for="card-number">Debit Card Number</label>
+        <input
+          id="card-number"
+          type="tel"
+          name="number"
+          pattern="[0-9]{16}"
+          placeholder="•••• •••• •••• ••••"
         >
       </div>
-
-      <div class="secure">
-        <img src="~/static/images/icon-lock.svg" alt="Connection encrypted">
-        Secured using 256 bit SSL encryption
+      <div class="field--half">
+        <label>Expiry Date</label>
+        <input
+          id="card-expiry"
+          type="tel"
+          name="number"
+          pattern="[0-9]{1-2}/[0-9]{2}"
+          placeholder="MM/YY"
+        >
       </div>
+      <div class="field--half">
+        <label for="card-pin">ATM PIN</label>
+        <input id="card-pin" type="tel" name="number" pattern="[0-9]{4}" placeholder="••••">
+      </div>
+      <div class="field">
+        <button class="btn btn-primary">Pay BHD12.345</button>
+      </div>
+    </div>
+
+    <div class="benefit">
+      <div class="benefit--text">
+        This payment will be processed by
+        <div class="large">The BENEFIT Company B.S.C</div>
+      </div>
+      <div class="benefit--img">
+        <img src="~/static/images/benefit.svg" alt="BENEFIT">
+      </div>
+    </div>
+
+    <div class="secure">
+      <img src="~/static/images/icon-lock.svg" alt="Connection encrypted">
+      Secured using 256 bit SSL encryption
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
+html,
+body {
+  height: 100%;
+}
+
 .container {
   width: 100%;
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: #fff;
 }
 .headboard {
-  background: url("~@/static/images/papyrus.png") repeat top left;
-  position: relative;
   height: 126px;
+  position: relative;
+
+  background: url("~@/static/images/papyrus.png") repeat top left;
   text-align: center;
   padding-top: 36px;
   border-radius: 10px 10px 0 0;
@@ -69,7 +80,6 @@
 
   .merchant--name {
     font-size: 28px;
-    color: #666;
   }
   .merchant--url {
     padding-top: 10px;
@@ -83,36 +93,105 @@
   }
 }
 
+.main,
+.benefit {
+  padding: 0 22px;
+}
+
+.main {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-top: 25px;
+
+  .field,
+  .field--half {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .field--half {
+    flex: 0 50%;
+
+    &:nth-child(even) {
+      padding-right: 5px;
+    }
+    &:nth-child(odd) {
+      padding-left: 5px;
+    }
+  }
+}
+
+form {
+  width: 100%;
+}
+
 label {
   text-transform: uppercase;
   font-size: 16px;
-  color: #666;
   display: block;
+  line-height: 42px;
 }
-.field {
-  margin: 0 auto;
+
+.btn {
   width: 100%;
-}
-.half-field {
-  width: 50%;
-  display: inline-block;
-}
-%textbox {
+  display: block;
+  background: linear-gradient(to bottom, #ec2029, #d73239);
   height: 51px;
+  border: 0;
+  font-family: "OpenSans-Bold", "Helvetica Neue", Arial, sans-serif;
+  color: #fff;
+  font-size: 18px;
+  border-radius: 4px;
+  text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.25);
+  box-shadow: inset 0px 1px 1px #ec2029, inset 0px 2px 1px #ffffff;
+  margin: 20px 0 30px;
+}
+
+#card-number,
+#card-expiry,
+#card-pin {
+  height: 51px;
+  width: 100%;
   padding: 3px 6px;
   border-radius: 4px;
   border: 1px solid #aaa;
   background: linear-gradient(to bottom, #fff, #f3f3f3);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25);
   font-size: 22px;
+  color: #666;
 }
-#card-number {
-  @extend %textbox;
+
+.benefit {
+  display: flex;
+  flex-flow: row nowrap;
   width: 100%;
 }
-#card-expiry,
-#card-pin {
-  @extend %textbox;
-  width: 50%;
+.benefit--text {
+  font-size: 12px;
+  width: 100%;
+  line-height: 24px;
+
+  .large {
+    font-size: 16px;
+    line-height: 34px;
+  }
+}
+.benefit--img {
+  width: 50px;
+}
+
+.secure {
+  height: 36px;
+  line-height: 36px;
+  background: url("~@/static/images/papyrus.png") repeat top left;
+  text-align: center;
+  font-size: 13px;
+
+  img {
+    position: relative;
+    top: 4px;
+    left: -2px;
+  }
 }
 </style>
