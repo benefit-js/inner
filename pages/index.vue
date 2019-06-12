@@ -300,9 +300,10 @@ label {
   width: 100%;
 }
 .benefit--text {
+  padding-top: 5px;
   font-size: 12px;
   width: 100%;
-  line-height: 24px;
+  line-height: 20px;
 
   .large {
     font-size: 16px;
