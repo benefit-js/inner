@@ -140,9 +140,6 @@ body {
   width: 337px;
   height: 595px;
   margin: 0 auto;
-  background: #eaeaea;
-  border-radius: 5px;
-  padding: 15px 10px;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -45%) scale(0.95);
@@ -189,6 +186,7 @@ body {
   flex-direction: column;
   justify-content: space-between;
   background: #fff;
+  border-radius: 10px;
 }
 .headboard {
   height: 126px;
@@ -321,6 +319,7 @@ label {
   background: url("~@/static/images/papyrus.png") repeat top left;
   text-align: center;
   font-size: 13px;
+  border-radius: 0 0 10px 10px;
 
   img {
     position: relative;
