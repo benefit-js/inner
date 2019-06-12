@@ -5,7 +5,7 @@
 ## TODO
 
 - [ ] Add input masking for card number, expiry date using [imask](https://github.com/uNmAnNeR/imaskjs/tree/master/packages/vue-imask) or [your own implementation](https://stackoverflow.com/a/55010378/2022751)
-- [ ] 
+- [ ] Add responsive styling for card form (full width on mobile, without border-radius)
 
 ## Build Setup
 

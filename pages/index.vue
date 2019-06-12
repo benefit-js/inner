@@ -1,66 +1,182 @@
 <template>
-  <div class="container">
-    <div class="headboard">
-      <div class="merchant--name">Your Company</div>
-      <div class="merchant--url">https://yourcompany.bh</div>
-      <div class="close">
-        <img src="~/static/images/close.svg" alt="Close modal">
-      </div>
-    </div>
-    <div class="main">
-      <div class="field">
-        <label for="card-number">Debit Card Number</label>
-        <input
-          id="card-number"
-          type="tel"
-          name="number"
-          pattern="[0-9]{16}"
-          placeholder="•••• •••• •••• ••••"
-        >
-      </div>
-      <div class="field--half">
-        <label>Expiry Date</label>
-        <input
-          id="card-expiry"
-          type="tel"
-          name="number"
-          pattern="[0-9]{1-2}/[0-9]{2}"
-          placeholder="MM/YY"
-        >
-      </div>
-      <div class="field--half">
-        <label for="card-pin">
-          ATM PIN
-          <img src="~/static/images/question.svg">
-        </label>
-        <input id="card-pin" type="password" name="number" pattern="[0-9]{4}" placeholder="••••">
-      </div>
-      <div class="field">
-        <button class="btn btn-primary">Pay BHD12.345</button>
-      </div>
-    </div>
+  <div id="modal" :class="{ 'open': isOpen }">
+    <div class="dialog">
+      <div class="container">
+        <div class="headboard">
+          <div class="merchant--name">Your Company</div>
+          <div class="merchant--url">https://yourcompany.bh</div>
+          <div class="close">
+            <img src="~/static/images/close.svg" alt="Close modal" @click="onCancel">
+          </div>
+        </div>
+        <div class="main">
+          <div class="field">
+            <label for="card-number">Debit Card Number</label>
+            <input
+              id="card-number"
+              type="tel"
+              name="number"
+              pattern="[0-9]{16}"
+              placeholder="•••• •••• •••• ••••"
+              v-model="cardNumber"
+            >
+          </div>
+          <div class="field--half">
+            <label>Expiry Date</label>
+            <input
+              id="card-expiry"
+              type="tel"
+              name="number"
+              pattern="[0-9]{1-2}/[0-9]{2}"
+              placeholder="MM/YY"
+              v-model="cardExpiry"
+            >
+          </div>
+          <div class="field--half">
+            <label for="card-pin">
+              ATM PIN
+              <img src="~/static/images/question.svg">
+            </label>
+            <input
+              id="card-pin"
+              type="password"
+              name="number"
+              pattern="[0-9]{4}"
+              placeholder="••••"
+              v-model="cardPin"
+            >
+          </div>
+          <div class="field">
+            <button class="btn btn-primary">Pay BHD{{amount}}</button>
+          </div>
+        </div>
 
-    <div class="benefit">
-      <div class="benefit--text">
-        This payment will be processed by
-        <div class="large">The BENEFIT Company B.S.C</div>
-      </div>
-      <div class="benefit--img">
-        <img src="~/static/images/benefit.svg" alt="BENEFIT">
-      </div>
-    </div>
+        <div class="benefit">
+          <div class="benefit--text">
+            This payment will be processed by
+            <div class="large">The BENEFIT Company B.S.C</div>
+          </div>
+          <div class="benefit--img">
+            <img src="~/static/images/benefit.svg" alt="BENEFIT">
+          </div>
+        </div>
 
-    <div class="secure">
-      <img src="~/static/images/icon-lock.svg" alt="Connection encrypted">
-      Secured using 256 bit SSL encryption
+        <div class="secure">
+          <img src="~/static/images/icon-lock.svg" alt="Connection encrypted">
+          Secured using 256 bit SSL encryption
+        </div>
+      </div>
     </div>
+    <div class="backdrop"></div>
   </div>
 </template>
+
+<script>
+import Postmate from "postmate";
+
+export default {
+  data() {
+    return {
+      isOpen: false,
+      handshakeComplete: false,
+      amount: null,
+      cardNumber: null,
+      cardExpiry: null,
+      cardPin: null
+    };
+  },
+  created() {
+    if (process.client) {
+      const handshake = new Postmate.Model({
+        init: ({ publicKey, amount, transactionId }) => {
+          this.handshakeComplete = true;
+          this.publicKey = publicKey;
+          this.amount = amount;
+        },
+        open: () => {
+          this.isOpen = true;
+        },
+        reset: () => {
+          // Hide and reset our state for the next potential run
+          this.close();
+          this.$router.go();
+        }
+      });
+
+      handshake.then(parent => {
+        this.parent = parent;
+      });
+    }
+  },
+  methods: {
+    onCancel() {
+      this.close();
+
+      this.parent.emit("cancel");
+    },
+    onComplete() {
+      // TODO: Return payment result
+      this.close();
+
+      this.parent.emit("complete");
+    },
+    close() {
+      this.isOpen = false;
+      setTimeout(() => this.parent.emit("close"), 1000); // animation out
+    }
+  }
+};
+</script>
 
 <style lang="scss" scoped>
 html,
 body {
   height: 100%;
+}
+
+.dialog {
+  position: absolute;
+  z-index: 100;
+  width: 337px;
+  height: 595px;
+  margin: 0 auto;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -45%) scale(0.95);
+  opacity: 0;
+  /* applies when moving OUT of open state */
+  transition: all 0.2s linear;
+}
+#modal.open .dialog {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+  /* applies when moving IN to open state */
+  transition: all 0.4s cubic-bezier(0.76, -0.54, 0.49, 1.73) 0.25s;
+}
+
+.backdrop {
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 0, 0, 0.6) 0,
+    rgba(0, 0, 0, 0.8) 100%
+  );
+  z-index: 99;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+  /* applies when moving OUT of open state */
+  transition: all 0.2s linear 0.2s;
+}
+#modal.open .backdrop {
+  visibility: visible;
+  opacity: 1;
+  /* applies when moving IN to open state */
+  transition: all 0.2s linear 0s;
+  pointer-events: auto;
 }
 
 .container {
@@ -70,6 +186,7 @@ body {
   flex-direction: column;
   justify-content: space-between;
   background: #fff;
+  border-radius: 10px;
 }
 .headboard {
   height: 126px;
@@ -95,6 +212,7 @@ body {
     position: absolute;
     top: 10px;
     right: 15px;
+    cursor: pointer;
   }
 }
 
@@ -201,6 +319,7 @@ label {
   background: url("~@/static/images/papyrus.png") repeat top left;
   text-align: center;
   font-size: 13px;
+  border-radius: 0 0 10px 10px;
 
   img {
     position: relative;
