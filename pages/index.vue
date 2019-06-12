@@ -4,7 +4,7 @@
       <div class="merchant--name">Your Company</div>
       <div class="merchant--url">https://yourcompany.bh</div>
       <div class="close">
-        <img src="~/static/images/close.svg" alt="Close modal">
+        <img src="~/static/images/close.svg" alt="Close modal" @click="cancel">
       </div>
     </div>
     <div class="main">
@@ -57,6 +57,62 @@
   </div>
 </template>
 
+<script>
+import Postmate from "postmate";
+
+export default {
+  data() {
+    return {
+      isOpen: false,
+      handshakeComplete: false
+    };
+  },
+  created() {
+    if (process.client) {
+      const handshake = new Postmate.Model({
+        init: ({ publicKey, amount, transactionId }) => {
+          this.handshakeComplete = true;
+          this.publicKey = publicKey;
+          this.amount = amount;
+          alert(`amount = ${this.amount}`);
+        },
+        open: () => {
+          this.isOpen = true;
+        },
+        reset: () => {
+          // Hide and reset our state for the next potential run
+          this._hide();
+          this.$router.go();
+        }
+      });
+
+      handshake.then(parent => {
+        this.parent = parent;
+      });
+    }
+  },
+  methods: {
+    onCancel() {
+      this.close();
+
+      this.parent.emit("cancel");
+      this.parent.emit("close");
+    },
+    onComplete() {
+      // TODO: Return payment result
+      this.close();
+
+      this.parent.emit("complete");
+      this.parent.emit("close");
+    },
+    close() {
+      // HIDE the modal dialog
+      this.parent.emit("close");
+    }
+  }
+};
+</script>
+
 <style lang="scss" scoped>
 html,
 body {
@@ -95,6 +151,7 @@ body {
     position: absolute;
     top: 10px;
     right: 15px;
+    cursor: pointer;
   }
 }
 
