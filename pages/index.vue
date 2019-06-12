@@ -29,8 +29,11 @@
         >
       </div>
       <div class="field--half">
-        <label for="card-pin">ATM PIN</label>
-        <input id="card-pin" type="tel" name="number" pattern="[0-9]{4}" placeholder="••••">
+        <label for="card-pin">
+          ATM PIN
+          <img src="~/static/images/question.svg">
+        </label>
+        <input id="card-pin" type="password" name="number" pattern="[0-9]{4}" placeholder="••••">
       </div>
       <div class="field">
         <button class="btn btn-primary">Pay BHD12.345</button>
@@ -71,10 +74,12 @@ body {
 .headboard {
   height: 126px;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 
   background: url("~@/static/images/papyrus.png") repeat top left;
   text-align: center;
-  padding-top: 36px;
   border-radius: 10px 10px 0 0;
   border-bottom: 1px solid #eee;
 
@@ -126,26 +131,34 @@ form {
   width: 100%;
 }
 
+.btn {
+  height: 54px;
+  width: 100%;
+  display: block;
+  margin: 20px 0 30px;
+  font-size: 20px;
+  background: linear-gradient(to bottom, #ec2029, #d73239);
+  border: 0;
+  font-family: "OpenSans-Bold", "Helvetica Neue", Arial, sans-serif;
+  color: #fff;
+  border-radius: 4px;
+  text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.25);
+  box-shadow: inset 0px 1px 1px #ec2029, inset 0px 2px 1px #ffffff;
+  cursor: pointer;
+}
+
 label {
   text-transform: uppercase;
   font-size: 16px;
   display: block;
   line-height: 42px;
-}
+  margin-left: 10px;
 
-.btn {
-  width: 100%;
-  display: block;
-  background: linear-gradient(to bottom, #ec2029, #d73239);
-  height: 51px;
-  border: 0;
-  font-family: "OpenSans-Bold", "Helvetica Neue", Arial, sans-serif;
-  color: #fff;
-  font-size: 18px;
-  border-radius: 4px;
-  text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.25);
-  box-shadow: inset 0px 1px 1px #ec2029, inset 0px 2px 1px #ffffff;
-  margin: 20px 0 30px;
+  &[for="card-pin"] img {
+    position: relative;
+    top: 4px;
+    cursor: pointer;
+  }
 }
 
 #card-number,
@@ -153,13 +166,14 @@ label {
 #card-pin {
   height: 51px;
   width: 100%;
-  padding: 3px 6px;
+  padding: 3px 10px;
   border-radius: 4px;
   border: 1px solid #aaa;
   background: linear-gradient(to bottom, #fff, #f3f3f3);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25);
   font-size: 22px;
   color: #666;
+  letter-spacing: 2px;
 }
 
 .benefit {
@@ -178,7 +192,7 @@ label {
   }
 }
 .benefit--img {
-  width: 50px;
+  width: 55px;
 }
 
 .secure {
