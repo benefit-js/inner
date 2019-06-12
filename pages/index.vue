@@ -171,7 +171,7 @@ label {
   border: 1px solid #aaa;
   background: linear-gradient(to bottom, #fff, #f3f3f3);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25);
-  font-size: 22px;
+  font-size: 18px;
   color: #666;
   letter-spacing: 2px;
 }
