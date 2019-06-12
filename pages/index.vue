@@ -4,7 +4,7 @@
       <div class="merchant--name">Your Company</div>
       <div class="merchant--url">https://yourcompany.bh</div>
       <div class="close">
-        <img src="~/static/images/close.svg" alt="Close modal" @click="cancel">
+        <img src="~/static/images/close.svg" alt="Close modal" @click="onCancel">
       </div>
     </div>
     <div class="main">
@@ -81,7 +81,7 @@ export default {
         },
         reset: () => {
           // Hide and reset our state for the next potential run
-          this._hide();
+          this.close();
           this.$router.go();
         }
       });
@@ -96,17 +96,15 @@ export default {
       this.close();
 
       this.parent.emit("cancel");
-      this.parent.emit("close");
     },
     onComplete() {
       // TODO: Return payment result
       this.close();
 
       this.parent.emit("complete");
-      this.parent.emit("close");
     },
     close() {
-      // HIDE the modal dialog
+      // TODO: CLOSE the dialog
       this.parent.emit("close");
     }
   }
