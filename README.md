@@ -1,6 +1,6 @@
-# inner
+# Inner [![Netlify Status](https://api.netlify.com/api/v1/badges/2690825e-a238-45de-9cf4-5749165dc1a3/deploy-status)](https://app.netlify.com/sites/benefitjs-checkout/deploys)
 
-> Checkout screen for [benefit.js](https://github.com/benefit-js/benefit-js)
+This is the actual Checkout screen for the [benefit.js](https://github.com/benefit-js/benefit-js) library.
 
 ## TODO
 
