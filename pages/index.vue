@@ -154,7 +154,7 @@ export default {
       }
       year = `20${year}`;
 
-      // Reset our error state
+      // Reset error state
       this.isError = false;
       this.submitPayment({ month, year });
     },
@@ -201,7 +201,8 @@ export default {
       alert(message);
     },
     _onSuccess() {
-      console.log("success");
+      console.log("success!");
+      this.onComplete();
     }
   }
 };
