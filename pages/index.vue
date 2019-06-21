@@ -143,14 +143,22 @@ export default {
 
     submit() {
       // Validates entered data and calls submit
-      let [_, expiryMonth, expiryYear] = this.cardExpiry.match(/(\d+)\/(\d+)/);
-      expiryYear = `20${expiryYear}`;
+      let [, month, year] = this.cardExpiry.match(/(\d+)\/(\d+)/);
+      if (month < 1 || month > 12) {
+        alert("invalid month: " + month);
+        return false;
+      }
+      if (year < 19 || year > 99) {
+        alert("invalid year: " + year);
+        return false;
+      }
+      year = `20${year}`;
 
       // Reset our error state
       this.isError = false;
-      this.submitPayment(expiryMonth, expiryYear);
+      this.submitPayment({ month, year });
     },
-    async submitPayment(mm, yyyy) {
+    async submitPayment({ month, year }) {
       this.isProcessing = true;
 
       this.$axios.setHeader("Public-Key", this.key);
@@ -159,8 +167,8 @@ export default {
           amount: this.amount,
           transaction_id: this.transactionId,
           card_number: this.cardNumber,
-          expiry_month: mm,
-          expiry_year: yyyy,
+          expiry_month: month,
+          expiry_year: year,
           name: "Ahmed",
           pin: this.cardPin
         })
