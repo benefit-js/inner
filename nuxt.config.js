@@ -42,6 +42,9 @@ export default {
   ** See https://axios.nuxtjs.org/options
   */
   axios: {
+    baseURL: 'http://api.benefitjs.com',
+    crossDomain: true,
+    progress: false
   },
   /*
   ** Build configuration

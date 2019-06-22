@@ -1,10 +1,13 @@
 <template>
-  <div id="modal" :class="{ 'open': isOpen }">
+  <div
+    id="modal"
+    :class="{ 'open': isOpen, 'processing': isProcessing, 'success': isSuccess, 'error': isError }"
+  >
     <div class="dialog">
       <div class="container">
         <div class="headboard">
-          <div class="merchant--name">Your Company</div>
-          <div class="merchant--url">https://yourcompany.bh</div>
+          <div class="item--title">{{title}}</div>
+          <div class="item--subtitle">{{subtitle}}</div>
           <div class="close">
             <img src="~/static/images/close.svg" alt="Close modal" @click="onCancel">
           </div>
@@ -19,6 +22,7 @@
               pattern="[0-9]{16}"
               placeholder="•••• •••• •••• ••••"
               v-model="cardNumber"
+              autofocus
             >
           </div>
           <div class="field--half">
@@ -27,7 +31,7 @@
               id="card-expiry"
               type="tel"
               name="number"
-              pattern="[0-9]{1-2}/[0-9]{2}"
+              pattern="[0-9/]{5}"
               placeholder="MM/YY"
               v-model="cardExpiry"
             >
@@ -47,7 +51,11 @@
             >
           </div>
           <div class="field">
-            <button class="btn btn-primary">Pay BHD{{amount}}</button>
+            <button
+              class="btn btn-primary"
+              @click="submit"
+              :disabled="isProcessing"
+            >Pay BHD{{amount}}</button>
           </div>
         </div>
 
@@ -79,19 +87,31 @@ export default {
     return {
       isOpen: false,
       handshakeComplete: false,
+      // Form params
+      key: null,
       amount: null,
       cardNumber: null,
       cardExpiry: null,
-      cardPin: null
+      cardPin: null,
+      transactionId: null,
+      title: "",
+      subtitle: "",
+      // State flags, for styling
+      isProcessing: false, // after "Pay" button is clicked
+      isSuccess: false,
+      isError: false
     };
   },
   created() {
     if (process.client) {
       const handshake = new Postmate.Model({
-        init: ({ publicKey, amount, transactionId }) => {
+        init: ({ key, amount, transactionId, title, subtitle }) => {
           this.handshakeComplete = true;
-          this.publicKey = publicKey;
+          this.key = key;
           this.amount = amount;
+          this.transactionId = transactionId;
+          this.title = title;
+          this.subtitle = subtitle;
         },
         open: () => {
           this.isOpen = true;
@@ -123,6 +143,70 @@ export default {
     close() {
       this.isOpen = false;
       setTimeout(() => this.parent.emit("close"), 1000); // animation out
+    },
+
+    submit() {
+      // Validates entered data and calls submit
+      let [, month, year] = this.cardExpiry.match(/(\d+)\/(\d+)/);
+      if (month < 1 || month > 12) {
+        alert("invalid month: " + month);
+        return false;
+      }
+      if (year < 19 || year > 99) {
+        alert("invalid year: " + year);
+        return false;
+      }
+      year = `20${year}`;
+
+      // Reset error state
+      this.isError = false;
+      this.submitPayment({ month, year });
+    },
+    async submitPayment({ month, year }) {
+      this.isProcessing = true;
+
+      this.$axios.setHeader("Public-Key", this.key);
+      this.$axios
+        .$post("/pay", {
+          amount: this.amount,
+          transaction_id: this.transactionId,
+          card_number: this.cardNumber,
+          expiry_month: month,
+          expiry_year: year,
+          name: "Ahmed",
+          pin: this.cardPin
+        })
+        .then(response => {
+          this._onSuccess();
+        })
+        .catch(error => {
+          if (error.response) {
+            // The request was made and the server responded with a status code
+            // that outside the 2xx range
+            this._onError(error.response.data.message);
+          } else if (error.request) {
+            // The request was made but no response was received
+            this._onError(
+              "The request timed out. Please check your internet connection and try again"
+            );
+          } else {
+            // Something happened in setting up the request that triggered an Error
+            this._onError(error.message);
+          }
+          // `error.config` contains the original request sent
+        })
+        .finally(() => {
+          this.isProcessing = false;
+        });
+    },
+    _onError(message) {
+      this.isError = true;
+      console.log(message);
+      alert(message);
+    },
+    _onSuccess() {
+      console.log("success!");
+      this.onComplete();
     }
   }
 };
@@ -200,10 +284,10 @@ body {
   border-radius: 10px 10px 0 0;
   border-bottom: 1px solid #eee;
 
-  .merchant--name {
+  .item--title {
     font-size: 28px;
   }
-  .merchant--url {
+  .item--subtitle {
     padding-top: 10px;
     font-size: 16px;
     color: #999;
@@ -263,6 +347,13 @@ form {
   text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.25);
   box-shadow: inset 0px 1px 1px #ec2029, inset 0px 2px 1px #ffffff;
   cursor: pointer;
+
+  &:disabled {
+    background: #999;
+    box-shadow: inset 0 1px 1px #777;
+    text-shadow: none;
+    color: #ccc;
+  }
 }
 
 label {
