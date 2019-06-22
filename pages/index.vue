@@ -6,8 +6,8 @@
     <div class="dialog">
       <div class="container">
         <div class="headboard">
-          <div class="merchant--name">Your Company</div>
-          <div class="merchant--url">https://yourcompany.bh</div>
+          <div class="item--title">{{title}}</div>
+          <div class="item--subtitle">{{subtitle}}</div>
           <div class="close">
             <img src="~/static/images/close.svg" alt="Close modal" @click="onCancel">
           </div>
@@ -94,6 +94,8 @@ export default {
       cardExpiry: null,
       cardPin: null,
       transactionId: null,
+      title: "",
+      subtitle: "",
       // State flags, for styling
       isProcessing: false, // after "Pay" button is clicked
       isSuccess: false,
@@ -103,11 +105,13 @@ export default {
   created() {
     if (process.client) {
       const handshake = new Postmate.Model({
-        init: ({ key, amount, transactionId }) => {
+        init: ({ key, amount, transactionId, title, subtitle }) => {
           this.handshakeComplete = true;
           this.key = key;
           this.amount = amount;
           this.transactionId = transactionId;
+          this.title = title;
+          this.subtitle = subtitle;
         },
         open: () => {
           this.isOpen = true;
@@ -280,10 +284,10 @@ body {
   border-radius: 10px 10px 0 0;
   border-bottom: 1px solid #eee;
 
-  .merchant--name {
+  .item--title {
     font-size: 28px;
   }
-  .merchant--url {
+  .item--subtitle {
     padding-top: 10px;
     font-size: 16px;
     color: #999;
