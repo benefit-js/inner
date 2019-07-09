@@ -9,6 +9,8 @@ This is the actual Checkout screen for the [benefit.js](https://github.com/benef
 - [x] Add field-specific error messages, allowing for highlighting erroneous fields when an error is encountered
 - [ ] Add CSS style transitions for error/success states
 - [ ] Check CGN on modal load & display error before form submission
+- [ ] Refactor month/year validation for expiry date (it's currently being done twice in `validateField` and in `getDateParts`)
+- [ ] Add progress indicator for "Pay" button while processing
 
 ## Build Setup
 

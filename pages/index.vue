@@ -170,23 +170,23 @@ export default {
       this.isOpen = false;
       setTimeout(() => this.parent.emit("close"), 1000); // animation out
     },
-
-    submit() {
-      // Validates entered data and calls submit
+    getDateParts() {
       let [, month, year] = this.cardExpiry.match(/(\d+)\/(\d+)/);
       if (month < 1 || month > 12) {
         alert("invalid month: " + month);
         return false;
       }
+
       if (year < 19 || year > 99) {
         alert("invalid year: " + year); // TODO: Use error tooltips
         return false;
       }
       year = `20${year}`;
 
-      this.submitPayment({ month, year });
+      return { month, year };
     },
-    async submitPayment({ month, year }) {
+    async submit() {
+      let { month, year } = this.getDateParts();
       this.isProcessing = true;
 
       this.$axios.setHeader("Public-Key", this.key);
@@ -215,7 +215,7 @@ export default {
             );
           } else {
             // Something happened in setting up the request that triggered an Error
-            this._onError(error.message);
+            alert(error.message);
           }
           // `error.config` contains the original request sent
         })
@@ -224,7 +224,7 @@ export default {
         });
     },
     _onError(body) {
-      param = body.param || "number";
+      let param = body.param || "number";
       this[`${param}Error`] = body.message;
     },
     _onSuccess() {
