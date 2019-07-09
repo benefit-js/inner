@@ -1,19 +1,16 @@
 <template>
-  <div
-    id="modal"
-    :class="{ 'open': isOpen, 'processing': isProcessing, 'success': isSuccess, 'error': isError }"
-  >
+  <div id="modal" :class="{ 'open': isOpen, 'processing': isProcessing, 'error': isError }">
     <div class="dialog">
       <div class="container">
         <div class="headboard">
           <div class="item--title">{{title}}</div>
           <div class="item--subtitle">{{subtitle}}</div>
           <div class="close">
-            <img src="~/static/images/close.svg" alt="Close modal" @click="onCancel">
+            <img src="~/static/images/close.svg" alt="Close modal" @click="onCancel" />
           </div>
         </div>
         <div class="main">
-          <div class="field">
+          <div class="field" :class="{ 'error': !!numberError }">
             <label for="card-number">Debit Card Number</label>
             <input
               id="card-number"
@@ -22,10 +19,12 @@
               pattern="[0-9]{16}"
               placeholder="•••• •••• •••• ••••"
               v-model="cardNumber"
+              @blur="validateField('number')"
               autofocus
-            >
+            />
+            <div class="field--error">{{ numberError }}</div>
           </div>
-          <div class="field--half">
+          <div class="field field--half">
             <label>Expiry Date</label>
             <input
               id="card-expiry"
@@ -34,27 +33,31 @@
               pattern="[0-9/]{5}"
               placeholder="MM/YY"
               v-model="cardExpiry"
-            >
+              @blur="validateField('expiry')"
+            />
+            <div class="field--error">{{ expiryError }}</div>
           </div>
-          <div class="field--half">
+          <div class="field field--half">
             <label for="card-pin">
               ATM PIN
-              <img src="~/static/images/question.svg">
+              <img src="~/static/images/question.svg" />
             </label>
             <input
               id="card-pin"
               type="password"
               name="number"
-              pattern="[0-9]{4}"
+              pattern="^[0-9]{4,}$"
               placeholder="••••"
               v-model="cardPin"
-            >
+              @blur="validateField('pin')"
+            />
+            <div class="field--error">{{ pinError }}</div>
           </div>
           <div class="field">
             <button
               class="btn btn-primary"
               @click="submit"
-              :disabled="isProcessing"
+              :disabled="isProcessing || isError"
             >Pay BHD{{amount}}</button>
           </div>
         </div>
@@ -65,12 +68,12 @@
             <div class="large">The BENEFIT Company B.S.C</div>
           </div>
           <div class="benefit--img">
-            <img src="~/static/images/benefit.svg" alt="BENEFIT">
+            <img src="~/static/images/benefit.svg" alt="BENEFIT" />
           </div>
         </div>
 
         <div class="secure">
-          <img src="~/static/images/icon-lock.svg" alt="Connection encrypted">
+          <img src="~/static/images/icon-lock.svg" alt="Connection encrypted" />
           Secured using 256 bit SSL encryption
         </div>
       </div>
@@ -97,9 +100,12 @@ export default {
       title: "",
       subtitle: "",
       // State flags, for styling
-      isProcessing: false, // after "Pay" button is clicked
-      isSuccess: false,
-      isError: false
+      isProcessing: false, // set after "Pay" button is clicked
+      // Error state handling
+      keyError: null,
+      numberError: null,
+      expiryError: null,
+      pinError: null
     };
   },
   created() {
@@ -129,16 +135,37 @@ export default {
     }
   },
   methods: {
+    validateField(field) {
+      let re = /^.*$/; // Anything goes..
+      let msg = "";
+
+      switch (field) {
+        case "number":
+          re = /^[\d ]{16}$/;
+          msg = "Invalid card number";
+          break;
+        case "expiry":
+          re = /^\d{1,2}\/\d{2}$/;
+          msg = "Invalid expiry";
+          break;
+        case "pin":
+          re = /^\d{4,}$/;
+          msg = "Invalid PIN";
+          break;
+      }
+
+      let valid = re.test(document.getElementById(`card-${field}`).value);
+      this[`${field}Error`] = valid ? null : msg;
+    },
     onCancel() {
       this.close();
 
       this.parent.emit("cancel");
     },
     onComplete() {
-      // TODO: Return payment result
       this.close();
 
-      this.parent.emit("complete");
+      this.parent.emit("complete"); // TODO: Return payment result
     },
     close() {
       this.isOpen = false;
@@ -153,13 +180,11 @@ export default {
         return false;
       }
       if (year < 19 || year > 99) {
-        alert("invalid year: " + year);
+        alert("invalid year: " + year); // TODO: Use error tooltips
         return false;
       }
       year = `20${year}`;
 
-      // Reset error state
-      this.isError = false;
       this.submitPayment({ month, year });
     },
     async submitPayment({ month, year }) {
@@ -182,8 +207,8 @@ export default {
         .catch(error => {
           if (error.response) {
             // The request was made and the server responded with a status code
-            // that outside the 2xx range
-            this._onError(error.response.data.message);
+            // that was outside the 2xx range
+            this._onError(error.response.data);
           } else if (error.request) {
             // The request was made but no response was received
             this._onError(
@@ -199,14 +224,20 @@ export default {
           this.isProcessing = false;
         });
     },
-    _onError(message) {
-      this.isError = true;
-      console.log(message);
-      alert(message);
+    _onError(body) {
+      param = body.param || "number";
+      this[`${param}Error`] = body.message;
     },
     _onSuccess() {
       console.log("success!");
       this.onComplete();
+    }
+  },
+  computed: {
+    isError() {
+      return (
+        this.keyError || this.numberError || this.expiryError || this.pinError
+      );
     }
   }
 };
@@ -311,8 +342,7 @@ body {
   flex-wrap: wrap;
   margin-top: 25px;
 
-  .field,
-  .field--half {
+  .field {
     width: 100%;
     margin-bottom: 20px;
   }
@@ -326,6 +356,18 @@ body {
     &:nth-child(odd) {
       padding-left: 5px;
     }
+  }
+
+  .field--error {
+    color: #b45054;
+    position: relative;
+    left: 10px;
+    top: 7px;
+    display: none;
+  }
+
+  .field.error .field--error {
+    display: block;
   }
 }
 
@@ -370,9 +412,7 @@ label {
   }
 }
 
-#card-number,
-#card-expiry,
-#card-pin {
+.field input {
   height: 51px;
   width: 100%;
   padding: 3px 10px;
@@ -383,6 +423,13 @@ label {
   font-size: 18px;
   color: #666;
   letter-spacing: 2px;
+}
+
+.field.error input {
+  background: linear-gradient(to bottom, #fef6f7, #f9e6e9);
+  border: 2px solid #b45054;
+  color: #b45054;
+  box-shadow: 0 0 3px 1px rgba(200, 0, 0, 0.3);
 }
 
 .benefit {

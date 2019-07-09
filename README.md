@@ -6,12 +6,13 @@ This is the actual Checkout screen for the [benefit.js](https://github.com/benef
 
 - [ ] Add input masking for card number, expiry date using [imask](https://github.com/uNmAnNeR/imaskjs/tree/master/packages/vue-imask) or [your own implementation](https://stackoverflow.com/a/55010378/2022751)
 - [ ] Add responsive styling for card form (full width on mobile, without border-radius)
-- [ ] Add field-specific error messages, allowing for highlighting erroneous fields when an error is encountered
+- [x] Add field-specific error messages, allowing for highlighting erroneous fields when an error is encountered
 - [ ] Add CSS style transitions for error/success states
+- [ ] Check CGN on modal load & display error before form submission
 
 ## Build Setup
 
-``` bash
+```bash
 # install dependencies
 $ yarn install
 
