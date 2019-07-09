@@ -24,7 +24,7 @@
             />
             <div class="field--error">{{ numberError }}</div>
           </div>
-          <div class="field field--half">
+          <div class="field field--half" :class="{ 'error': !!expiryError }">
             <label>Expiry Date</label>
             <input
               id="card-expiry"
@@ -37,7 +37,7 @@
             />
             <div class="field--error">{{ expiryError }}</div>
           </div>
-          <div class="field field--half">
+          <div class="field field--half" :class="{ 'error': !!pinError }">
             <label for="card-pin">
               ATM PIN
               <img src="~/static/images/question.svg" />
@@ -136,26 +136,25 @@ export default {
   },
   methods: {
     validateField(field) {
-      let re = /^.*$/; // Anything goes..
-      let msg = "";
+      let valid = false;
+      let error = "Invalid field";
 
       switch (field) {
         case "number":
-          re = /^[\d ]{16}$/;
-          msg = "Invalid card number";
+          valid = /^\d{16}$/.test(this.cardNumber);
+          error = "Invalid card number";
           break;
         case "expiry":
-          re = /^\d{1,2}\/\d{2}$/;
-          msg = "Invalid expiry";
+          valid = /^\d{1,2}\/\d{2}$/.test(this.cardExpiry);
+          error = "Invalid expiry";
           break;
         case "pin":
-          re = /^\d{4,}$/;
-          msg = "Invalid PIN";
+          valid = /^\d{4,}$/.test(this.cardPin);
+          error = "Invalid PIN";
           break;
       }
 
-      let valid = re.test(document.getElementById(`card-${field}`).value);
-      this[`${field}Error`] = valid ? null : msg;
+      this[`${field}Error`] = valid ? null : error;
     },
     onCancel() {
       this.close();
