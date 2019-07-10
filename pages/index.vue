@@ -12,11 +12,11 @@
         <div class="main">
           <div class="field" :class="{ 'error': !!numberError }">
             <label for="card-number">Debit Card Number</label>
-            <input
+            <MaskedInput
+              mask="card"
               id="card-number"
               type="tel"
               name="number"
-              pattern="[0-9]{16}"
               placeholder="•••• •••• •••• ••••"
               v-model="cardNumber"
               @blur="validateField('number')"
@@ -26,11 +26,11 @@
           </div>
           <div class="field field--half" :class="{ 'error': !!expiryError }">
             <label>Expiry Date</label>
-            <input
+            <MaskedInput
+              mask="expiry"
               id="card-expiry"
               type="tel"
               name="number"
-              pattern="[0-9/]{5}"
               placeholder="MM/YY"
               v-model="cardExpiry"
               @blur="validateField('expiry')"
@@ -46,7 +46,6 @@
               id="card-pin"
               type="password"
               name="number"
-              pattern="^[0-9]{4,}$"
               placeholder="••••"
               v-model="cardPin"
               @blur="validateField('pin')"
@@ -84,6 +83,7 @@
 
 <script>
 import Postmate from "postmate";
+import MaskedInput from "../components/masked-input";
 
 export default {
   data() {
@@ -141,7 +141,7 @@ export default {
 
       switch (field) {
         case "number":
-          valid = /^\d{16}$/.test(this.cardNumber);
+          valid = /^\d{4} \d{4} \d{4} \d{4}$/.test(this.cardNumber);
           error = "Invalid card number";
           break;
         case "expiry":
@@ -238,6 +238,9 @@ export default {
         this.keyError || this.numberError || this.expiryError || this.pinError
       );
     }
+  },
+  components: {
+    MaskedInput
   }
 };
 </script>
