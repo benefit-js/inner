@@ -145,7 +145,7 @@ export default {
           error = "Invalid card number";
           break;
         case "expiry":
-          valid = /^\d{1,2}\/\d{2}$/.test(this.cardExpiry);
+          valid = /^1[0-2]|0[1-9]\/19|[2-9][0-9]$/.test(this.cardExpiry);
           error = "Invalid expiry";
           break;
         case "pin":
