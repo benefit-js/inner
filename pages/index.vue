@@ -16,12 +16,12 @@
               id="card-number"
               type="tel"
               name="number"
-              pattern="[0-9]{16}"
               placeholder="•••• •••• •••• ••••"
               v-model="cardNumber"
               @blur="validateField('number')"
               autofocus
             />
+            <!-- to handle on change, use @input -->
             <div class="field--error">{{ numberError }}</div>
           </div>
           <div class="field field--half" :class="{ 'error': !!expiryError }">
@@ -30,7 +30,6 @@
               id="card-expiry"
               type="tel"
               name="number"
-              pattern="[0-9/]{5}"
               placeholder="MM/YY"
               v-model="cardExpiry"
               @blur="validateField('expiry')"
@@ -46,7 +45,6 @@
               id="card-pin"
               type="password"
               name="number"
-              pattern="^[0-9]{4,}$"
               placeholder="••••"
               v-model="cardPin"
               @blur="validateField('pin')"
@@ -362,11 +360,19 @@ body {
     position: relative;
     left: 10px;
     top: 7px;
-    display: none;
+    max-height: 0; /* We animate max-height (since you can't animate height: auto) */
+    /* 
+      To animate out of error state, we would need to avoid clearing the error text since
+      that will immediately collapse the element to zero-height. To do this, we could have
+      and error flag separate from the error text.
+      - Only "set" error text, without ever clearing it
+      - Use error flag for showing/hiding error text
+     */
   }
 
   .field.error .field--error {
-    display: block;
+    max-height: 3em;
+    transition: max-height 1s cubic-bezier(0.17, 0.67, 0.83, 0.67); // animate-in to error
   }
 }
 
