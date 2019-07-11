@@ -146,7 +146,7 @@ export default {
           error = "Invalid card number";
           break;
         case "expiry":
-          valid = /^1[0-2]|0[1-9]19|[2-9][0-9]$/.test(this.cardExpiry);
+          valid = /^(1[0-2]|0[1-9])(19|[2-9][0-9])$/.test(this.cardExpiry);
           error = "Invalid expiry";
           break;
         case "pin":
@@ -172,7 +172,10 @@ export default {
       setTimeout(() => this.parent.emit("close"), 1000); // animation out
     },
     async submit() {
-      if (this.cardExpiry.length != 4) return false;
+      if (this.cardExpiry.length != 4) {
+        this.expiryError = "Invalid expiry";
+        return false;
+      }
 
       let month = parseInt(this.cardExpiry.substr(0, 2));
       let year = 2000 + parseInt(this.cardExpiry.substr(2, 2));
@@ -217,7 +220,6 @@ export default {
       this[`${param}Error`] = body.message;
     },
     _onSuccess() {
-      console.log("success!");
       this.onComplete();
     }
   },
