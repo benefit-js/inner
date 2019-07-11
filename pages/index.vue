@@ -142,11 +142,11 @@ export default {
 
       switch (field) {
         case "number":
-          valid = /^\d{4} \d{4} \d{4} \d{4}$/.test(this.cardNumber);
+          valid = /^\d{16}$/.test(this.cardNumber);
           error = "Invalid card number";
           break;
         case "expiry":
-          valid = /^1[0-2]|0[1-9]\/19|[2-9][0-9]$/.test(this.cardExpiry);
+          valid = /^1[0-2]|0[1-9]19|[2-9][0-9]$/.test(this.cardExpiry);
           error = "Invalid expiry";
           break;
         case "pin":
@@ -171,23 +171,11 @@ export default {
       this.isOpen = false;
       setTimeout(() => this.parent.emit("close"), 1000); // animation out
     },
-    getDateParts() {
-      let [, month, year] = this.cardExpiry.match(/(\d+)\/(\d+)/);
-      if (month < 1 || month > 12) {
-        alert("invalid month: " + month);
-        return false;
-      }
-
-      if (year < 19 || year > 99) {
-        alert("invalid year: " + year); // TODO: Use error tooltips
-        return false;
-      }
-      year = `20${year}`;
-
-      return { month, year };
-    },
     async submit() {
-      let { month, year } = this.getDateParts();
+      if (this.cardExpiry.length != 4) return false;
+
+      let month = parseInt(this.cardExpiry.substr(0, 2));
+      let year = 2000 + parseInt(this.cardExpiry(2, 2));
       this.isProcessing = true;
 
       this.$axios.setHeader("Public-Key", this.key);

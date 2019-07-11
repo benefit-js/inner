@@ -5,11 +5,11 @@ This is the actual Checkout screen for the [benefit.js](https://github.com/benef
 ## TODO
 
 - [x] Add input masking for card number, expiry date using [imask](https://github.com/uNmAnNeR/imaskjs/tree/master/packages/vue-imask) or [your own implementation](https://stackoverflow.com/a/55010378/2022751)
-- [ ] Add responsive styling for card form (full width on mobile, without border-radius)
+- [x] Refactor month/year validation for expiry date (it's currently being done twice in `validateField` and in `getDateParts`)
 - [x] Add field-specific error messages, allowing for highlighting erroneous fields when an error is encountered
 - [ ] Add CSS style transitions for error/success states
+- [ ] Add responsive styling for card form (full width on mobile, without border-radius)
 - [ ] Check CGN on modal load & display error before form submission
-- [ ] Refactor month/year validation for expiry date (it's currently being done twice in `validateField` and in `getDateParts`)
 - [ ] Add progress indicator for "Pay" button while processing
 
 ## Build Setup

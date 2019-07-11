@@ -36,7 +36,9 @@ export default {
   },
   methods: {
     onInput(e) {
-      this.$emit("input", e.target.value);
+      // We choose to emit the raw value, not the actual visible value since
+      // that simplifies the parent component (no need to know about format)
+      this.$emit("input", this.rawValue);
     },
     onBlur(e) {
       this.$emit("blur", e);
