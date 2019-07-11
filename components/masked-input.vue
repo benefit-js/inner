@@ -72,7 +72,8 @@ export default {
   },
   computed: {
     rawValue() {
-      return this.curValue.replace(/\D/g, "");
+      let maxLength = this.mask == "card" ? 16 : 4;
+      return this.curValue.replace(/\D/g, "").substr(0, maxLength);
     }
   }
 };
