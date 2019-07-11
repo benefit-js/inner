@@ -11,7 +11,7 @@ const MASKS = {
       output += raw[i];
       if ((i + 1) % 4 == 0 && i < 15) output += " ";
     }
-    return output.substr(0, 16 + 3); // clip to 16 numbers + 3 spaces
+    return output;
   },
   expiry: raw => {
     let output = "";
@@ -21,7 +21,7 @@ const MASKS = {
 
       if (output.length == 2) output += "/";
     }
-    return output.substr(0, 4 + 1); // clip to 4 numbers + /
+    return output;
   }
 };
 
@@ -72,7 +72,8 @@ export default {
   },
   computed: {
     rawValue() {
-      return this.curValue.replace(/\D/g, "");
+      let maxLength = this.mask == "card" ? 16 : 4;
+      return this.curValue.replace(/\D/g, "").substr(0, maxLength);
     }
   }
 };
