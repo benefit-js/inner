@@ -16,13 +16,12 @@
               mask="card"
               id="card-number"
               type="tel"
-              name="number"
+              ref="number"
               placeholder="•••• •••• •••• ••••"
               v-model="cardNumber"
               @blur="validateField('number')"
-              autofocus
+              @input="validateField('number', true)"
             />
-            <!-- to handle on change, use @input -->
             <div class="field--error">{{ numberError }}</div>
           </div>
           <div class="field field--half" :class="{ 'error': !!expiryError }">
@@ -31,10 +30,11 @@
               mask="expiry"
               id="card-expiry"
               type="tel"
-              name="number"
+              ref="expiry"
               placeholder="MM/YY"
               v-model="cardExpiry"
               @blur="validateField('expiry')"
+              @input="validateField('expiry', true)"
             />
             <div class="field--error">{{ expiryError }}</div>
           </div>
@@ -46,10 +46,14 @@
             <input
               id="card-pin"
               type="password"
-              name="number"
+              ref="pin"
+              pattern="[0-9]*"
+              inputmode="numeric"
               placeholder="••••"
+              maxlength="6"
               v-model="cardPin"
               @blur="validateField('pin')"
+              @input="validateField('pin', true)"
             />
             <div class="field--error">{{ pinError }}</div>
           </div>
@@ -135,8 +139,11 @@ export default {
       });
     }
   },
+  mounted() {
+    this._focusOn("number");
+  },
   methods: {
-    validateField(field) {
+    validateField(field, clearOnly = false) {
       let valid = false;
       let error = "Invalid field";
 
@@ -155,7 +162,12 @@ export default {
           break;
       }
 
-      this[`${field}Error`] = valid ? null : error;
+      if (valid) {
+        this[`${field}Error`] = null;
+      } else if (!clearOnly) {
+        // we don't display any errors in clearOnly mode
+        this[`${field}Error`] = error;
+      }
     },
     onCancel() {
       this.close();
@@ -172,11 +184,6 @@ export default {
       setTimeout(() => this.parent.emit("close"), 1000); // animation out
     },
     async submit() {
-      if (this.cardExpiry.length != 4) {
-        this.expiryError = "Invalid expiry";
-        return false;
-      }
-
       let month = parseInt(this.cardExpiry.substr(0, 2));
       let year = 2000 + parseInt(this.cardExpiry.substr(2, 2));
       this.isProcessing = true;
@@ -218,6 +225,20 @@ export default {
     _onError(body) {
       let param = body.param || "number";
       this[`${param}Error`] = body.message;
+      this._focusOn(param);
+    },
+    _focusOn(param) {
+      // Moves cursor focus to the "param" input field
+      switch (param) {
+        case "pin":
+          this.$refs[param].focus();
+          break;
+        case "number":
+        case "expiry":
+          // $el required for custom component <MaskedInput>
+          this.$refs[param].$el.focus();
+          break;
+      }
     },
     _onSuccess() {
       this.onComplete();
