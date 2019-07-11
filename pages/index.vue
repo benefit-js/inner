@@ -175,7 +175,7 @@ export default {
       if (this.cardExpiry.length != 4) return false;
 
       let month = parseInt(this.cardExpiry.substr(0, 2));
-      let year = 2000 + parseInt(this.cardExpiry(2, 2));
+      let year = 2000 + parseInt(this.cardExpiry.substr(2, 2));
       this.isProcessing = true;
 
       this.$axios.setHeader("Public-Key", this.key);
