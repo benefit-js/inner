@@ -11,7 +11,7 @@ const MASKS = {
       output += raw[i];
       if ((i + 1) % 4 == 0 && i < 15) output += " ";
     }
-    return output;
+    return output.substr(0, 16 + 3); // clip to 16 numbers + 3 spaces
   },
   expiry: raw => {
     let output = "";
@@ -21,7 +21,7 @@ const MASKS = {
 
       if (output.length == 2) output += "/";
     }
-    return output;
+    return output.substr(0, 4 + 1); // clip to 4 numbers + /
   }
 };
 

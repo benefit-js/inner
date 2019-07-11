@@ -16,11 +16,10 @@
               mask="card"
               id="card-number"
               type="tel"
-              name="number"
+              ref="number"
               placeholder="•••• •••• •••• ••••"
               v-model="cardNumber"
               @blur="validateField('number')"
-              autofocus
             />
             <!-- to handle on change, use @input -->
             <div class="field--error">{{ numberError }}</div>
@@ -31,7 +30,7 @@
               mask="expiry"
               id="card-expiry"
               type="tel"
-              name="number"
+              ref="expiry"
               placeholder="MM/YY"
               v-model="cardExpiry"
               @blur="validateField('expiry')"
@@ -46,8 +45,11 @@
             <input
               id="card-pin"
               type="password"
-              name="number"
+              ref="pin"
+              pattern="[0-9]*"
+              inputmode="numeric"
               placeholder="••••"
+              maxlength="6"
               v-model="cardPin"
               @blur="validateField('pin')"
             />
@@ -135,6 +137,9 @@ export default {
       });
     }
   },
+  mounted() {
+    this._focusOn("number");
+  },
   methods: {
     validateField(field) {
       let valid = false;
@@ -172,11 +177,6 @@ export default {
       setTimeout(() => this.parent.emit("close"), 1000); // animation out
     },
     async submit() {
-      if (this.cardExpiry.length != 4) {
-        this.expiryError = "Invalid expiry";
-        return false;
-      }
-
       let month = parseInt(this.cardExpiry.substr(0, 2));
       let year = 2000 + parseInt(this.cardExpiry.substr(2, 2));
       this.isProcessing = true;
@@ -218,6 +218,16 @@ export default {
     _onError(body) {
       let param = body.param || "number";
       this[`${param}Error`] = body.message;
+      this._focusOn(param);
+    },
+    _focusOn(param) {
+      // Moves cursor focus to the "param" input field
+      if (param == "pin") {
+        this.$refs[param].focus();
+      } else {
+        // $el required for custom component <MaskedInput>
+        this.$refs[param].$el.focus();
+      }
     },
     _onSuccess() {
       this.onComplete();
