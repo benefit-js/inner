@@ -20,8 +20,8 @@
               placeholder="•••• •••• •••• ••••"
               v-model="cardNumber"
               @blur="validateField('number')"
+              @input="validateField('number', true)"
             />
-            <!-- to handle on change, use @input -->
             <div class="field--error">{{ numberError }}</div>
           </div>
           <div class="field field--half" :class="{ 'error': !!expiryError }">
@@ -34,6 +34,7 @@
               placeholder="MM/YY"
               v-model="cardExpiry"
               @blur="validateField('expiry')"
+              @input="validateField('expiry', true)"
             />
             <div class="field--error">{{ expiryError }}</div>
           </div>
@@ -52,6 +53,7 @@
               maxlength="6"
               v-model="cardPin"
               @blur="validateField('pin')"
+              @input="validateField('pin', true)"
             />
             <div class="field--error">{{ pinError }}</div>
           </div>
@@ -141,7 +143,7 @@ export default {
     this._focusOn("number");
   },
   methods: {
-    validateField(field) {
+    validateField(field, clearOnly = false) {
       let valid = false;
       let error = "Invalid field";
 
@@ -160,7 +162,12 @@ export default {
           break;
       }
 
-      this[`${field}Error`] = valid ? null : error;
+      if (valid) {
+        this[`${field}Error`] = null;
+      } else if (!clearOnly) {
+        // we don't display any errors in clearOnly mode
+        this[`${field}Error`] = error;
+      }
     },
     onCancel() {
       this.close();
@@ -222,11 +229,15 @@ export default {
     },
     _focusOn(param) {
       // Moves cursor focus to the "param" input field
-      if (param == "pin") {
-        this.$refs[param].focus();
-      } else {
-        // $el required for custom component <MaskedInput>
-        this.$refs[param].$el.focus();
+      switch (param) {
+        case "pin":
+          this.$refs[param].focus();
+          break;
+        case "number":
+        case "expiry":
+          // $el required for custom component <MaskedInput>
+          this.$refs[param].$el.focus();
+          break;
       }
     },
     _onSuccess() {

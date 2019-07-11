@@ -10,12 +10,12 @@ This is the actual Checkout screen for the [benefit.js](https://github.com/benef
 - [x] Add max-length to fields
 - [x] Autofocus on error field (from server submission)
 - [x] Use number pad for PIN field
-- Fix error UX
-  - [ ] Clear errors as soon as validation passes (on key press)
-  - [ ] Display errors only on blur (without clear/set existing value)
+- [x] Fix error UX
+  - [x] Clear errors as soon as validation passes (on key press)
+  - [x] Display errors only on blur (without clear/set existing value)
+- [ ] Check CGN on modal load & display error before form submission (handle param=key errors!)
 - [ ] Add CSS style transitions for error/success states
 - [ ] Add responsive styling for card form (full width on mobile, without border-radius)
-- [ ] Check CGN on modal load & display error before form submission
 - [ ] Add progress indicator for "Pay" button while processing
 
 ## Build Setup
