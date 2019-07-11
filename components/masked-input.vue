@@ -46,7 +46,7 @@ export default {
     applyMask(e) {
       let lastChar = this.getLastChar();
       let rawInput = this.rawValue;
-      const SPACERS = " /".split("");
+      const SPACERS = [" ", "/"];
 
       if (SPACERS.includes(lastChar) && e.keyCode == 8) {
         // backspace deleted the spacer but the user actually wanted to delete
