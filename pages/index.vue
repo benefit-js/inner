@@ -41,7 +41,7 @@
           <div class="field field--half" :class="{ 'error': !!pinError }">
             <label for="card-pin">
               ATM PIN
-              <img src="~/static/images/question.svg" />
+              <img src="~/static/images/question.svg" title="The PIN number for your ATM card" />
             </label>
             <input
               id="card-pin"
