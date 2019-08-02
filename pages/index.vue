@@ -204,13 +204,8 @@ export default {
       this.parent.emit("cancel");
     },
     onComplete() {
-      const vm = this;
-
-      // Wait for success animation to complete
-      setTimeout(() => {
-        vm.close();
-        vm.parent.emit("complete"); // TODO: Return payment ID
-      }, 1450);
+      this.close();
+      this.parent.emit("complete"); // TODO: Return payment ID
     },
     close() {
       this.isOpen = false;
@@ -233,7 +228,8 @@ export default {
           pin: this.cardPin
         })
         .then(response => {
-          this.onComplete();
+          this.isSuccess = true;
+          setTimeout(() => this.onComplete(), 1450); // animation out
         })
         .catch(error => {
           if (error.response) {
