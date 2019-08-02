@@ -1,7 +1,7 @@
 <template>
   <div id="modal" :class="{ 'open': isOpen, 'processing': isProcessing, 'error': isError }">
     <div class="dialog">
-      <div class="container">
+      <div v-if="!isSuccess" class="container">
         <div class="headboard">
           <div class="item--title">{{title}}</div>
           <div class="item--subtitle">{{subtitle}}</div>
@@ -41,7 +41,10 @@
           <div class="field field--half" :class="{ 'error': !!pinError }">
             <label for="card-pin">
               ATM PIN
-              <img src="~/static/images/question.svg" title="The PIN number for your ATM card" />
+              <img
+                src="~/static/images/question.svg"
+                title="The PIN number for your ATM card"
+              />
             </label>
             <input
               id="card-pin"
@@ -81,6 +84,29 @@
           Secured using 256 bit SSL encryption
         </div>
       </div>
+      <div v-else class="container success">
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130.2 130.2">
+          <circle
+            class="path circle"
+            fill="none"
+            stroke="#FFFFFF"
+            stroke-width="6"
+            stroke-miterlimit="10"
+            cx="65.1"
+            cy="65.1"
+            r="62.1"
+          />
+          <polyline
+            class="path check"
+            fill="none"
+            stroke="#FFFFFF"
+            stroke-width="6"
+            stroke-linecap="round"
+            stroke-miterlimit="10"
+            points="100.2,40.2 51.5,88.8 29.8,67.5 "
+          />
+        </svg>
+      </div>
     </div>
     <div class="backdrop"></div>
   </div>
@@ -106,6 +132,7 @@ export default {
       subtitle: "",
       // State flags, for styling
       isProcessing: false, // set after "Pay" button is clicked
+      isSuccess: false,
       // Error state handling
       keyError: null,
       numberError: null,
@@ -228,6 +255,8 @@ export default {
       this._focusOn(param);
     },
     _focusOn(param) {
+      return false;
+
       // Moves cursor focus to the "param" input field
       switch (param) {
         case "pin":
@@ -313,7 +342,7 @@ body {
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: normal;
   background: #fff;
   border-radius: 10px;
 }
@@ -486,6 +515,52 @@ label {
     position: relative;
     top: 4px;
     left: -2px;
+  }
+}
+
+.success {
+  background: #73af55;
+  justify-content: space-around;
+
+  svg {
+    width: 150px;
+    display: block;
+    margin: 0 auto;
+  }
+
+  .path {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 0;
+
+    &.circle {
+      animation: dash 0.9s ease-in-out;
+    }
+    &.line {
+      stroke-dashoffset: 1000;
+      animation: dash 0.9s 0.35s ease-in-out forwards;
+    }
+    &.check {
+      stroke-dashoffset: -100;
+      animation: dash-check 0.9s 0.35s ease-in-out forwards;
+    }
+  }
+
+  @keyframes dash {
+    0% {
+      stroke-dashoffset: 1000;
+    }
+    100% {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes dash-check {
+    0% {
+      stroke-dashoffset: -100;
+    }
+    100% {
+      stroke-dashoffset: 900;
+    }
   }
 }
 </style>
