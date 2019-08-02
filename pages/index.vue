@@ -1,7 +1,7 @@
 <template>
   <div id="modal" :class="{ 'open': isOpen, 'processing': isProcessing, 'error': isError }">
     <div class="dialog">
-      <transition name="fade">
+      <transition name="fade" mode="out-in">
         <div v-if="!isSuccess" key="form" class="container">
           <div class="headboard">
             <div class="item--title">{{title}}</div>
