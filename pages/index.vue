@@ -257,8 +257,6 @@ export default {
       this._focusOn(param);
     },
     _focusOn(param) {
-      return false;
-
       // Moves cursor focus to the "param" input field
       switch (param) {
         case "pin":
