@@ -1,86 +1,114 @@
 <template>
   <div id="modal" :class="{ 'open': isOpen, 'processing': isProcessing, 'error': isError }">
     <div class="dialog">
-      <div class="container">
-        <div class="headboard">
-          <div class="item--title">{{title}}</div>
-          <div class="item--subtitle">{{subtitle}}</div>
-          <div class="close">
-            <img src="~/static/images/close.svg" alt="Close modal" @click="onCancel" />
+      <transition name="fade" mode="out-in">
+        <div v-if="!isSuccess" key="form" class="container">
+          <div class="headboard">
+            <div class="item--title">{{title}}</div>
+            <div class="item--subtitle">{{subtitle}}</div>
+            <div class="close">
+              <img src="~/static/images/close.svg" alt="Close modal" @click="onCancel" />
+            </div>
           </div>
-        </div>
-        <div class="main">
-          <div class="field" :class="{ 'error': !!numberError }">
-            <label for="card-number">Debit Card Number</label>
-            <MaskedInput
-              mask="card"
-              id="card-number"
-              type="tel"
-              ref="number"
-              placeholder="•••• •••• •••• ••••"
-              v-model="cardNumber"
-              @blur="validateField('number')"
-              @input="validateField('number', true)"
-            />
-            <div class="field--error">{{ numberError }}</div>
+          <div class="main">
+            <div class="field" :class="{ 'error': !!numberError }">
+              <label for="card-number">Debit Card Number</label>
+              <MaskedInput
+                mask="card"
+                id="card-number"
+                type="tel"
+                ref="number"
+                placeholder="•••• •••• •••• ••••"
+                v-model="cardNumber"
+                @blur="validateField('number')"
+                @input="validateField('number', true)"
+              />
+              <div class="field--error">{{ numberError }}</div>
+            </div>
+            <div class="field field--half" :class="{ 'error': !!expiryError }">
+              <label>Expiry Date</label>
+              <MaskedInput
+                mask="expiry"
+                id="card-expiry"
+                type="tel"
+                ref="expiry"
+                placeholder="MM/YY"
+                v-model="cardExpiry"
+                @blur="validateField('expiry')"
+                @input="validateField('expiry', true)"
+              />
+              <div class="field--error">{{ expiryError }}</div>
+            </div>
+            <div class="field field--half" :class="{ 'error': !!pinError }">
+              <label for="card-pin">
+                ATM PIN
+                <img
+                  src="~/static/images/question.svg"
+                  title="The PIN number for your ATM card"
+                />
+              </label>
+              <input
+                id="card-pin"
+                type="password"
+                ref="pin"
+                pattern="[0-9]*"
+                inputmode="numeric"
+                placeholder="••••"
+                maxlength="6"
+                v-model="cardPin"
+                @blur="validateField('pin')"
+                @input="validateField('pin', true)"
+              />
+              <div class="field--error">{{ pinError }}</div>
+            </div>
+            <div class="field">
+              <button
+                class="btn btn-primary"
+                @click="submit"
+                :disabled="isProcessing || isError"
+              >Pay BHD{{amount}}</button>
+            </div>
           </div>
-          <div class="field field--half" :class="{ 'error': !!expiryError }">
-            <label>Expiry Date</label>
-            <MaskedInput
-              mask="expiry"
-              id="card-expiry"
-              type="tel"
-              ref="expiry"
-              placeholder="MM/YY"
-              v-model="cardExpiry"
-              @blur="validateField('expiry')"
-              @input="validateField('expiry', true)"
-            />
-            <div class="field--error">{{ expiryError }}</div>
-          </div>
-          <div class="field field--half" :class="{ 'error': !!pinError }">
-            <label for="card-pin">
-              ATM PIN
-              <img src="~/static/images/question.svg" />
-            </label>
-            <input
-              id="card-pin"
-              type="password"
-              ref="pin"
-              pattern="[0-9]*"
-              inputmode="numeric"
-              placeholder="••••"
-              maxlength="6"
-              v-model="cardPin"
-              @blur="validateField('pin')"
-              @input="validateField('pin', true)"
-            />
-            <div class="field--error">{{ pinError }}</div>
-          </div>
-          <div class="field">
-            <button
-              class="btn btn-primary"
-              @click="submit"
-              :disabled="isProcessing || isError"
-            >Pay BHD{{amount}}</button>
-          </div>
-        </div>
 
-        <div class="benefit">
-          <div class="benefit--text">
-            This payment will be processed by
-            <div class="large">The BENEFIT Company B.S.C</div>
+          <div class="benefit">
+            <div class="benefit--text">
+              This payment will be processed by
+              <div class="large">The BENEFIT Company B.S.C</div>
+            </div>
+            <div class="benefit--img">
+              <img src="~/static/images/benefit.svg" alt="BENEFIT" />
+            </div>
           </div>
-          <div class="benefit--img">
-            <img src="~/static/images/benefit.svg" alt="BENEFIT" />
-          </div>
-        </div>
 
-        <div class="secure">
-          <img src="~/static/images/icon-lock.svg" alt="Connection encrypted" />
-          Secured using 256 bit SSL encryption
+          <div class="secure">
+            <img src="~/static/images/icon-lock.svg" alt="Connection encrypted" />
+            Secured using 256 bit SSL encryption
+          </div>
         </div>
-      </div>
+        <div v-else key="result" class="container success">
+          <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130.2 130.2">
+            <circle
+              class="path circle"
+              fill="none"
+              stroke="#FFFFFF"
+              stroke-width="6"
+              stroke-miterlimit="10"
+              cx="65.1"
+              cy="65.1"
+              r="62.1"
+            />
+            <polyline
+              class="path check"
+              fill="none"
+              stroke="#FFFFFF"
+              stroke-width="6"
+              stroke-linecap="round"
+              stroke-miterlimit="10"
+              points="100.2,40.2 51.5,88.8 29.8,67.5 "
+            />
+          </svg>
+        </div>
+      </transition>
     </div>
     <div class="backdrop"></div>
   </div>
@@ -106,6 +134,7 @@ export default {
       subtitle: "",
       // State flags, for styling
       isProcessing: false, // set after "Pay" button is clicked
+      isSuccess: false,
       // Error state handling
       keyError: null,
       numberError: null,
@@ -176,8 +205,7 @@ export default {
     },
     onComplete() {
       this.close();
-
-      this.parent.emit("complete"); // TODO: Return payment result
+      this.parent.emit("complete"); // TODO: Return payment ID
     },
     close() {
       this.isOpen = false;
@@ -200,7 +228,8 @@ export default {
           pin: this.cardPin
         })
         .then(response => {
-          this._onSuccess();
+          this.isSuccess = true;
+          setTimeout(() => this.onComplete(), 1750); // animation out
         })
         .catch(error => {
           if (error.response) {
@@ -239,9 +268,6 @@ export default {
           this.$refs[param].$el.focus();
           break;
       }
-    },
-    _onSuccess() {
-      this.onComplete();
     }
   },
   computed: {
@@ -313,7 +339,7 @@ body {
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: normal;
   background: #fff;
   border-radius: 10px;
 }
@@ -487,5 +513,58 @@ label {
     top: 4px;
     left: -2px;
   }
+}
+
+.success {
+  background: #73af55;
+  justify-content: space-around;
+
+  svg {
+    width: 150px;
+    display: block;
+    margin: 0 auto;
+  }
+
+  .path {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 0;
+
+    &.circle {
+      animation: dash 0.9s ease-in-out;
+    }
+
+    &.check {
+      stroke-dashoffset: -100;
+      animation: dash-check 0.9s 0.35s ease-in-out forwards;
+    }
+  }
+
+  @keyframes dash {
+    0% {
+      stroke-dashoffset: 1000;
+    }
+    100% {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes dash-check {
+    0% {
+      stroke-dashoffset: -100;
+    }
+    100% {
+      stroke-dashoffset: 900;
+    }
+  }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease-in-out;
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0.4;
 }
 </style>
