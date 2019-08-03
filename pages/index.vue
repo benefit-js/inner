@@ -229,7 +229,7 @@ export default {
         })
         .then(response => {
           this.isSuccess = true;
-          setTimeout(() => this.onComplete(), 1450); // animation out
+          setTimeout(() => this.onComplete(), 1750); // animation out
         })
         .catch(error => {
           if (error.response) {
@@ -530,12 +530,12 @@ label {
     stroke-dashoffset: 0;
 
     &.circle {
-      animation: dash 0.9s 0.2s ease-in-out;
+      animation: dash 0.9s ease-in-out;
     }
 
     &.check {
       stroke-dashoffset: -100;
-      animation: dash-check 0.9s 0.55s ease-in-out forwards;
+      animation: dash-check 0.9s 0.35s ease-in-out forwards;
     }
   }
 
