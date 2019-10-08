@@ -1,17 +1,24 @@
 <template>
-  <div id="modal" :class="{ 'open': isOpen, 'processing': isProcessing, 'error': isError }">
+  <div
+    id="modal"
+    :class="{ open: isOpen, processing: isProcessing, error: isError }"
+  >
     <div class="dialog">
       <transition name="fade" mode="out-in">
         <div v-if="!isSuccess" key="form" class="container">
           <div class="headboard">
-            <div class="item--title">{{title}}</div>
-            <div class="item--subtitle">{{subtitle}}</div>
+            <div class="item--title">{{ title }}</div>
+            <div class="item--subtitle">{{ subtitle }}</div>
             <div class="close">
-              <img src="~/static/images/close.svg" alt="Close modal" @click="onCancel" />
+              <img
+                src="~/static/images/close.svg"
+                alt="Close modal"
+                @click="onCancel"
+              />
             </div>
           </div>
           <div class="main">
-            <div class="field" :class="{ 'error': !!numberError }">
+            <div class="field" :class="{ error: !!numberError }">
               <label for="card-number">Debit Card Number</label>
               <MaskedInput
                 mask="card"
@@ -25,7 +32,7 @@
               />
               <div class="field--error">{{ numberError }}</div>
             </div>
-            <div class="field field--half" :class="{ 'error': !!expiryError }">
+            <div class="field field--half" :class="{ error: !!expiryError }">
               <label>Expiry Date</label>
               <MaskedInput
                 mask="expiry"
@@ -39,7 +46,7 @@
               />
               <div class="field--error">{{ expiryError }}</div>
             </div>
-            <div class="field field--half" :class="{ 'error': !!pinError }">
+            <div class="field field--half" :class="{ error: !!pinError }">
               <label for="card-pin">
                 ATM PIN
                 <img
@@ -66,7 +73,9 @@
                 class="btn btn-primary"
                 @click="submit"
                 :disabled="isProcessing || isError"
-              >Pay BHD{{amount}}</button>
+              >
+                Pay BHD{{ amount }}
+              </button>
             </div>
           </div>
 
@@ -81,12 +90,19 @@
           </div>
 
           <div class="secure">
-            <img src="~/static/images/icon-lock.svg" alt="Connection encrypted" />
+            <img
+              src="~/static/images/icon-lock.svg"
+              alt="Connection encrypted"
+            />
             Secured using 256 bit SSL encryption
           </div>
         </div>
         <div v-else key="result" class="container success">
-          <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130.2 130.2">
+          <svg
+            version="1.1"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 130.2 130.2"
+          >
             <circle
               class="path circle"
               fill="none"
@@ -118,6 +134,8 @@
 import Postmate from "postmate";
 import MaskedInput from "../components/masked-input";
 
+let encryptSuite; // populated by initEncryptionSuite() on mount
+
 export default {
   data() {
     return {
@@ -139,7 +157,7 @@ export default {
       keyError: null,
       numberError: null,
       expiryError: null,
-      pinError: null
+      pinError: null,
     };
   },
   created() {
@@ -160,18 +178,35 @@ export default {
           // Hide and reset our state for the next potential run
           this.close();
           this.$router.go();
-        }
+        },
       });
 
-      handshake.then(parent => {
+      handshake.then((parent) => {
         this.parent = parent;
       });
     }
   },
   mounted() {
+    this.initEncryptSuite();
     this._focusOn("number");
   },
   methods: {
+    initEncryptSuite() {
+      // Uses asymmetric public key encryption with hard-coded certificate.
+      // The private key is generated on the backend gateway and is never 
+      // transmitted outside the hardened server.
+      const lib = require("~/plugins/jsencrypt.client");
+      const publicKey = 
+        '-----BEGIN PUBLIC KEY-----' +
+        'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCvtMA2cFzn8HZ8w85dKcPAu7d1' +
+        'bDawqVvj9wwx9EyGWfSDtSn7wPMzPAXQGdUpKCG2qqnlklhSFxLfK4jW7c1b84BJ' +
+        'RUjRiAnekRj684wg9ESV+NcTMOlWn51QWvmosXZ+2qzzAsfOit2DCzCp/pYdd+AD' +
+        'FtRAWsv2EHgD0OZAVwIDAQAB' +
+        '-----END PUBLIC KEY-----'
+
+      encryptSuite = new lib.JSEncrypt()
+      encryptSuite.setPublicKey(publicKey)
+    },
     validateField(field, clearOnly = false) {
       let valid = false;
       let error = "Invalid field";
@@ -212,26 +247,16 @@ export default {
       setTimeout(() => this.parent.emit("close"), 1000); // animation out
     },
     async submit() {
-      let month = parseInt(this.cardExpiry.substr(0, 2));
-      let year = 2000 + parseInt(this.cardExpiry.substr(2, 2));
       this.isProcessing = true;
 
       this.$axios.setHeader("Public-Key", this.key);
       this.$axios
-        .$post("/pay", {
-          amount: this.amount,
-          transaction_id: this.transactionId,
-          card_number: this.cardNumber,
-          expiry_month: month,
-          expiry_year: year,
-          name: "Ahmed",
-          pin: this.cardPin
-        })
-        .then(response => {
+        .$post("/pay", this._encryptedFields())
+        .then((_) => {
           this.isSuccess = true;
           setTimeout(() => this.onComplete(), 1750); // animation out
         })
-        .catch(error => {
+        .catch((error) => {
           if (error.response) {
             // The request was made and the server responded with a status code
             // that was outside the 2xx range
@@ -268,6 +293,25 @@ export default {
           this.$refs[param].$el.focus();
           break;
       }
+    },
+    _encryptedFields() {
+      let month = parseInt(this.cardExpiry.substr(0, 2));
+      let year = 2000 + parseInt(this.cardExpiry.substr(2, 2));
+      
+      return {
+        transaction_id: this.transactionId,
+        amount: this.amount,
+        name: "Ahmed", // unused
+        
+        // encrypt all sensitive card details
+        expiry_month: this.encrypt(`${month}`),
+        expiry_year: this.encrypt(`${year}`),
+        card_number: this.encrypt(this.cardNumber),
+        pin: this.encrypt(this.cardPin),
+      };
+    },
+    encrypt(str) {
+      return encryptSuite.encrypt(str)
     }
   },
   computed: {
@@ -275,11 +319,11 @@ export default {
       return (
         this.keyError || this.numberError || this.expiryError || this.pinError
       );
-    }
+    },
   },
   components: {
-    MaskedInput
-  }
+    MaskedInput,
+  },
 };
 </script>
 
