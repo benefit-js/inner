@@ -224,7 +224,7 @@ export default {
           card_number: this.cardNumber,
           expiry_month: month,
           expiry_year: year,
-          name: "Ahmed",
+          name: "Ahmed", // doesn't actually matter
           pin: this.cardPin
         })
         .then(response => {
