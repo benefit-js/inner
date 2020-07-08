@@ -40,7 +40,7 @@ export default {
    ** See https://axios.nuxtjs.org/options
    */
   axios: {
-    baseURL: process.env.API_URL || "https://api.benefitjs.com",
+    baseURL: process.env.API_URL || "https://api.benefit-js.com",
     crossDomain: true,
     progress: false
   },
